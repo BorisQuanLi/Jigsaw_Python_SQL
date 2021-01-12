@@ -1,7 +1,17 @@
-a = (1, 2, 3, 4)
-b = (5, 6, 7, 8)
-d = (10, 11, 12, 13)
+a = [1, 2, 3, 4]
+b = [5, 6, 7, 8]
 c= [a, b]
+
+print(c)
+# nest for loops
+number_rows = len(c)
+number_columns = len(c[0])
+
+tuples_list = []
+for lst in c:
+    tuples_list
+
+d = (10, 11, 12, 13)
 
 def sum_elements_two_lists(list1, list2):
     return [tupl[0] + tupl[1] for tupl in zip(list1, list2)]
