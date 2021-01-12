@@ -18,31 +18,32 @@ def find_companies_by_sector(sector):
     selected_sector = requests.get(SECTOR_URL, params = {'sector': sector})
     return selected_sector.json()
 
-def avg_element_wise_list(list_of_tuples: list):
+def element_wise_avg_list(companies_pe_history_list: list):
     """
-    Turns a list of tuples into a list of element-wise average numbers.
+    Turns a list of lists into a list of element-wise average numbers.
     """
-    sum_element_wise_list = (reduce(lambda x, y: [tup[0] + tup[1] for tup in zip(x,y)], list_of_tuples) 
-                                if type(list_of_tuples[0]) == tuple 
-                                else list_of_tuples)
-    if type(list_of_tuples[0]) == tuple:
-        number_companies = len(list_of_tuples)
-        return list(map(lambda sum_element_wise: sum_element_wise/ number_companies,
-                            sum_element_wise_list))
+    if len(companies_pe_history_list) > 1:
+        sum_element_wise_list = reduce(lambda x, y: [tup[0] + tup[1] for tup in zip(x,y)], 
+                                                                        companies_pe_history_list) 
+        number_companies = len(companies_pe_history_list)
+        average_pe_history_list =  list(
+                                        map(lambda sum_total_element_wise: 
+                                                        sum_total_element_wise/ number_companies,
+                                                                        sum_element_wise_list))
     else:
-        return list_of_tuples
-
+        average_pe_history_list = companies_pe_history_list
+    return average_pe_history_list
     
-selected_sectors = st.multiselect(
+all_sectors = st.multiselect(
                         'Industry sectors',
                     ['Health Care', 'Information Technology', 'Consumer Staples'],
                     ['Health Care', 'Information Technology', 'Consumer Staples'])
 
 # plot each sector's average price/quarter-earnings ratio over 4 quarters
 fig = go.Figure()
-for sector in selected_sectors:
+for sector in all_sectors:
     companies_by_sector = find_companies_by_sector(sector)
-    pe_list = []
+    dates_pe_list = []
     for company in companies_by_sector:
         ticker = company['ticker']
         company_info = find_company_by_ticker(ticker)
@@ -51,14 +52,15 @@ for sector in selected_sectors:
                                                 'History of quarterly Closing Price and Price to Earnings ratios']]
         date_history = [datetime.strptime(quarter['date'], "%Y-%m-%d") for quarter in company_info[
                                                 'History of quarterly Closing Price and Price to Earnings ratios']]
-        pe_list.append(dict(zip(date_history, pe_history)))
+        dates_pe_list.append(dict(zip(date_history, pe_history)))
 
-    companies_pe_history_list = [company_quarterly_pe
-                                        for company_pe_history_dict in pe_list 
-                                                for company_quarterly_pe in company_pe_history_dict.values()]
-    quarterly_average_pe_history = avg_element_wise_list(companies_pe_history_list)
-    quarter_ending_dates_history = [key for key in pe_list[0].keys()] 
-    
+    companies_pe_history_list = [list(company_pe_history_dict.values())
+                                                            for company_pe_history_dict in dates_pe_list]                                      
+    quarterly_average_pe_history = element_wise_avg_list(companies_pe_history_list)
+    quarter_ending_dates_history = [key for key in dates_pe_list[0].keys()] 
+    print(sector)
+    print(quarterly_average_pe_history)
+    print(dates_pe_list)
 
     # y, x axis, respectively, above
     # average quarterly p/e ratio trace for each sector    
@@ -79,6 +81,8 @@ fig.update_layout(
 )
 
 st.plotly_chart(fig)
+
+breakpoint()
 
 selected_sectors = st.multiselect(
                     'Which sector are you interested in? (Select only one, please.)',

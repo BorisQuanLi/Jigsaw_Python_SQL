@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS companies;
-DROP TABLE IF EXISTS sectors;
-DROP TABLE IF EXISTS prices;
-DROP TABLE IF EXISTS financials;
+DROP TABLE IF EXISTS sub_industries;
+DROP TABLE IF EXISTS prices_pe;
+DROP TABLE IF EXISTS quarterly_reports;
 
 CREATE TABLE IF NOT EXISTS companies (
   id serial PRIMARY KEY,
@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS sub_industries(
 
 CREATE TABLE IF NOT EXISTS prices_pe(
 	id serial PRIMARY KEY,
+  date DATE,
   company_id INTEGER,
 	closing_price FLOAT,
 	price_earnings_ratio FLOAT
@@ -31,7 +32,6 @@ CREATE TABLE IF NOT EXISTS quarterly_reports (
   id serial PRIMARY KEY,
   date DATE,
   company_id INTEGER,
-  closing_price FLOAT,
   revenue BIGINT,
   cost BIGINT,
   net_income BIGINT,

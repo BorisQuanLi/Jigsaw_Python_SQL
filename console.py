@@ -34,21 +34,22 @@ def build_quarterly_reports(companies_quarterly_reports_list: list,
             quarterly_reports_builder.run(quarterly_report, conn, cursor)
 
 # PricePE build_extract function 
-def build_prices_pe(ticker: str):
-    """
-    Generate a list of one company's quarterly reports, each a QuarterlyReport object
+def build_prices_pe_list(tickers_list):
+    def build_prices_pe(ticker: str):
+        """
+        Generate a list of one company's quarterly reports, each a QuarterlyReport object
 
-    Based on the date of each quarterly report, obtains the closing price, then
-    calucates the price / earnings ratio, before writing the row of data
-    into the prices_pe table. 
-    """
-    quarterly_reports_objs_list = (models.QuarterlyReport.
-                                        find_quarterly_reports_by_ticker(ticker, db.cursor))
-    price_pe_builder = adapters.PricePEbuilder()
-    price_pe_builder.run(quarterly_reports_objs_list, db.conn, db.cursor)
+        Based on the date of each quarterly report, obtains the closing price, then
+        calucates the price / earnings ratio, before writing the row of data
+        into the prices_pe table. 
+        """
+        quarterly_reports_objs_list = (models.QuarterlyReport.
+                                            find_quarterly_reports_by_ticker(ticker, db.cursor))
+        price_pe_builder = adapters.PricePEbuilder()
+        price_pe_builder.run(quarterly_reports_objs_list, db.conn, db.cursor)
 
-for ticker in ['PFE', 'JNJ', 'AAPL', 'WMT']:
-    build_prices_pe(ticker)
+    for ticker in tickers_list:
+        build_prices_pe(ticker)
 
 
 """
@@ -60,6 +61,16 @@ sub_industries_3 = [{'sub_industry_GICS': 'Hypermarkets & Super Centers', 'secto
 sub_industry_builder = adapters.SubIndustryBuilder()
 for sub_industry_info in sub_industries_3:
     sub_industry_builder.run(sub_industry_info, db.conn, db.cursor)
+
+---
+# 1/11/2021
+four_companies = ['PFE', 'JNJ', 'AAPL', 'WMT']
+four_companies_info  = extract_companies_info(four_companies)
+build_companies(four_companies_info)
+four_companies_reports = extract_quarterly_reports(four_companies)
+build_quarterly_reports(four_companies_reports)
+
+build_prices_pe_list(four_companies)
 
 ---
 build_companies
